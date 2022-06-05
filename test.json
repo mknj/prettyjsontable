@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "name": "古",
+    "start": 1388530800000,
+    "active": true,
+    "bob": {"a":true}
+  },
+  {
+    "id": 2,
+    "name": "ansi \u001B[1m古\u001B[22m",
+    "start": 1420066800.123,
+    "active": false,
+    "bob": ["a","b"]
+  },
+  {
+    "id": 4,
+    "name": "smily 🤨😐",
+    "start": 1449442800000,
+    "active": 1,
+    "bob": ["a","b"]
+  },
+  {
+    "id": 6,
+    "start": 1461667805268,
+    "active": -1
+  }
+]

@@ -1,6 +1,6 @@
 [
- {"id": 1, "name": "古", "start": 1388530800000, "active": true,"balance":100.0 },
- {"id": 2, "name": "\u001B[1mansi in data\u001B[22m", "start": 1420066800123, "active": false,"balance":100.0  },
- {"id": 4, "name": "smiley 🤨", "start": 1449442800000, "active": false,"balance":-100.0 },
+ {"id": 1, "name": "古", "start": 1388530800000, "active": true,"balance":100.1 },
+ {"id": 2, "name": "\u001B[1mansi in data\u001B[22m", "start": 1420066800123, "active": false,"balance":100.22  },
+ {"id": 4, "name": "smiley 🤨", "start": 1449442800000, "active": false,"balance":-100.333 },
  {"id": 6, "name":"line feed \t\r\n","start": 1461667805268, "active": true,"balance":100.0 }
 ]

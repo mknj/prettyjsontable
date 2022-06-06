@@ -1,39 +1,25 @@
 #!/usr/bin/env node
 
-/*
- read data
- convert data to array
- convert values
- filter columns
- calulate widths
- pad cells
- create lines
- alternate lines
- create stringrep
-
- ideas:
-  - align . in number column if possible
-  - right and center pad option
-*/
-
 import { readFileSync } from 'node:fs'
 import { prettyjsontable } from './prettyjsontable.js'
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 
 const program = new Command()
 program
-  .option('-b, --boolean <color>', 'highlight booleans', '#2222FF')
-  .option('-f, --false <color>', 'highlight false boolean', '#FF3333')
-  .option('-z, --negative <color>', 'highlight negative numbers', '#FF2222')
-  .option('-n, --number <color>', 'highlight numbers', '')
-  .option('-u, --unixtime <color>', 'highlight and convert unix timestamps', '#2222FF')
-  .option('-v, --msunixtime <color>', 'highlight and convert unix timestamps in milliseconds', '#22FF22')
-  .option('-e, --even <color>', 'even line background', '#111111')
-  .option('-o, --odd <color>', 'odd line background', '#222222')
-  .option('--header <color>', 'header line background', '#AA2222')
-  .option('--unixstart <date>', 'convert numbers after <date> to Date', '2013-01-01')
-  .option('--unixend <date>', 'convert numbers before <date> to Date', '2030-01-01')
-  .option('-c, --columns <number...>', 'display the given columns in the given order (i.e. 3 4 1)')
+  .configureHelp({
+  })
+  .addOption(new Option('-b, --boolean <color>', 'highlight booleans                                           ').default('#2222FF').env('PRETTYJSONTABLE_BOOLEAN'))
+  .addOption(new Option('-f, --false <color>', 'highlight false boolean                                        ').default('#FF3333').env('PRETTYJSONTABLE_FALSE'))
+  .addOption(new Option('-z, --negative <color>', 'highlight negative numbers                                  ').default('#FF2222').env('PRETTYJSONTABLE_NEGATIVE'))
+  .addOption(new Option('-n, --number <color>', 'highlight numbers                                             ').default('').env('PRETTYJSONTABLE_NUMBER'))
+  .addOption(new Option('-e, --even <color>', 'even line background                                            ').default('#111111').env('PRETTYJSONTABLE_EVEN'))
+  .addOption(new Option('-o, --odd <color>', 'odd line background                                              ').default('#222222').env('PRETTYJSONTABLE_ODD'))
+  .addOption(new Option('--header <color>', 'header line background                                            ').default('#AA2222').env('PRETTYJSONTABLE_HEADER'))
+  .addOption(new Option('-u, --unixtime <color>', 'highlight and convert unix timestamps                       ').default('#2222FF').env('PRETTYJSONTABLE_UNIXTIME'))
+  .addOption(new Option('-v, --msunixtime <color>', 'highlight and convert unix timestamps in milliseconds     ').default('#22FF22').env('PRETTYJSONTABLE_MSUNIXTIME'))
+  .addOption(new Option('--unixstart <date>', 'convert numbers after <date> to Date                            ').default('2013-01-01').env('PRETTYJSONTABLE_UNIXSTART'))
+  .addOption(new Option('--unixend <date>', 'convert numbers before <date> to Date                             ').default('2030-01-01').env('PRETTYJSONTABLE_UNIXEND'))
+  .addOption(new Option('-c, --columns <number...>', 'display the given columns in the given order (i.e. 3 4 1)'))
   .addHelpText('after', `
 
   Example call:

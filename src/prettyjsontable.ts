@@ -1,11 +1,8 @@
-#!/usr/bin/env node
-
-// this function returns an array of parsed JSON objects, the function does not care about formating. i.e. `[1,2\n][3,4]\n { "a"\r\n:2}\r\r` is valid input
-
 import chalk from 'chalk'
 import { OptionValues } from 'commander'
 import stringWidth from 'string-width'
 
+// this function returns an array of parsed JSON objects, the function does not care about formating. i.e. `[1,2\n][3,4]\n { "a"\r\n:2}\r\r` is valid input
 // if you have a well formated line based JSONStream, you could use data.split("\n") instead, as that would be roughly 2x faster
 function JSONStreamToArray (data: string): unknown[][] {
   const atPositionRE = /Unexpected token . in JSON at position (\d*)/

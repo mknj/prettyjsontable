@@ -17,7 +17,7 @@ npm i -g prettyjsontable
 
 # usage
 
-![demo.gif](./demo.gif)
+![demo.gif](https://github.com/mknj/prettyjsontable/raw/main/demo.gif)
 
 
 # help

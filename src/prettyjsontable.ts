@@ -61,7 +61,7 @@ export function prettyjsontable (data: unknown[][] | string, options: OptionValu
   const firstJSONDate = new Date(options.unixstart).valueOf()
   const lastJSONDate = new Date(options.unixend).valueOf()
 
-  let table = data.map((e) => Array.from(columns.values()).map((k) => convertValues(e[k]).toString().replace(/[\t\r\n]/g, ' '))
+  let table = data.map((e) => Array.from(columns.values()).map((k) => convertValues(e[k]).toString().replace(/[\t\r\n]/g, '☐'))
   )
 
   // filter columns
@@ -104,6 +104,9 @@ export function prettyjsontable (data: unknown[][] | string, options: OptionValu
       return value
     }
     if (typeof (value) === 'boolean') {
+      if (!value && options.false.length > 0) {
+        return chalkOrValue(value, options.false)
+      }
       return chalkOrValue(value, options.boolean)
     }
     return '' // null or undefined or function

@@ -181,7 +181,7 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
     }
   }
 
-  // pad all values of one column to the same length
+  // pad all cells of one column to the same length
   for (const row of dataWithValuesConvertedToStrings) {
     for (const [column, value] of Object.entries(row)) {
       row[column] = pad(value, column)

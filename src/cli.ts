@@ -6,8 +6,8 @@ import { Command, Option } from 'commander'
 
 const program = new Command()
 program
-  .configureHelp({
-  })
+  .name('prettyjsontable')
+  .description('CLI to format json arrays and jsonstreams as table')
   .addOption(new Option('-b, --boolean <color>', 'highlight booleans                                           ').default('#2222FF').env('PRETTYJSONTABLE_BOOLEAN'))
   .addOption(new Option('-f, --false <color>', 'highlight false boolean                                        ').default('#FF3333').env('PRETTYJSONTABLE_FALSE'))
   .addOption(new Option('-z, --negative <color>', 'highlight negative numbers                                  ').default('#FF2222').env('PRETTYJSONTABLE_NEGATIVE'))
@@ -22,9 +22,9 @@ program
   .addOption(new Option('-c, --columns <number...>', 'display the given columns in the given order (i.e. 3 4 1)'))
   .addHelpText('after', `
 
-  Example call:
-    $ cat test.json | tj -n 3 2 1 -u "" -n "#AAAA22"
-    $ cat test.jsonstream | tj`)
+  Example calls:
+    $ cat test.json | prettyjsontable -n 3 2 1 -u "" -n "#AAAA22"
+    $ cat test.json | jq .[] | jt`)
 
 program.parse()
 

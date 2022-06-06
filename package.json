@@ -1,6 +1,6 @@
 {
   "name": "prettyjsontable",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "type": "module",
   "main": "index.js",
@@ -15,7 +15,9 @@
     "build": "tsc",
     "test": "node dist/cli.js <test.json"
   },
-  "files": ["dist/**"],
+  "files": [
+    "dist/**"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {

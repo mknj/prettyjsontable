@@ -1,6 +1,6 @@
 # TLDR
 
-Read a json array or jsonstream from stdin and print a nice tabular representation.
+Read a json array or jsonstream from stdin and print as table.
 
 The package provides the `prettyjsontable` command and a `jt` shortcut.
 
@@ -41,12 +41,12 @@ Options:
   -v, --msunixtime <color>   highlight and convert unix timestamps in ms
   --unixstart <date>         convert numbers after <date> to Date
   --unixend <date>           convert numbers before <date> to Date
-  -c, --columns <number...>  display columns in the given order (i.e. 3 4 1)
+  -c, --columns <number...>  display columns in the given order
   -h, --help                 display help for command
 
 
   ENVIRONMENT:
-    You can also set an option via the variable PRETTYJSONTABLE_optionname.
+    You can also set an option via the variable PRETTYJSONTABLE_optionname
     i.e. PRETTYJSONTABLE_EVEN for the even option.
   
   Disable single color:

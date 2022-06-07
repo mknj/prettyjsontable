@@ -70,8 +70,14 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
   // add table header
   data.unshift(Object.fromEntries(columns))
 
+  // fill dummy object
+  const dummy = mapObject(Object.fromEntries(columns), () => '')
+
+  // extend all objects with empty string placeholder
+  const dataWithExtendedObjects = data.map(o => ({ ...dummy, ...o }))
+
   // convert all values to strings
-  const dataWithValuesConvertedToStrings = mapObjects(data, (column, value) => convertValues(value, column).replace(/[\t\r\n]/g, '☐'))
+  const dataWithValuesConvertedToStrings = mapObjects(dataWithExtendedObjects, (column, value) => convertValues(value, column).replace(/[\t\r\n]/g, '☐'))
 
   // calculate column widths
   const columnWidths = reduceObjects(mapObjects(dataWithValuesConvertedToStrings, (column, value) => stringWidth(value)), max)
@@ -93,6 +99,7 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
   /// //////////////////////////////// internal sub-functions ///////////////////////////////////
 
   function convertValues (value: unknown, column: string): string {
+    console.log(column, value, typeof (value))
     if (typeof value === 'number') {
       if (value > firstJSONDate && value < lastJSONDate && options.msunixtime.length > 0) {
         return chalkOrValue(new Date(value).toISOString(), options.msunixtime)

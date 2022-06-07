@@ -53,10 +53,44 @@ function getDecimalPlaces (v: number): number {
 
 export function prettyjsontable (data: Data| string, options: OptionValues): string {
   const columns: Map<string, string> = new Map()
-  const decimalPlaces: Map<string, number> = new Map()
-  const columnWidths: Map<string, number> = new Map()
   const firstJSONDate = new Date(options.unixstart).valueOf()
   const lastJSONDate = new Date(options.unixend).valueOf()
+
+  // if the input is a string, convert it to data
+  if (typeof (data) === 'string') {
+    data = dataToTable(data)
+  }
+
+  // extract column names (aka table header) and decimal places
+  data.forEach(d => Object.keys(d).forEach(column => { columns.set(column, column) }))
+
+  // calculate column widths
+  const decimalPlaces = reduceObjects(mapObjects(data, (column, value) => typeof (value) === 'number' ? getDecimalPlaces(value) : NaN), max)
+
+  // add table header
+  data.unshift(Object.fromEntries(columns))
+
+  // convert all values to strings
+  const dataWithValuesConvertedToStrings = mapObjects(data, (column, value) => convertValues(value, column).replace(/[\t\r\n]/g, '☐'))
+
+  // calculate column widths
+  const columnWidths = reduceObjects(mapObjects(dataWithValuesConvertedToStrings, (column, value) => stringWidth(value)), max)
+
+  // pad all cells of one column to the same length
+  const dataWithPaddedValues = mapObjects(dataWithValuesConvertedToStrings, (column, value) => pad(value, column))
+
+  // convert array of objects to array of array (like excel ;)
+  let table = dataWithPaddedValues.map((e) => Array.from(columns.values()).map(column => e[column]))
+
+  // filter and rearrange columns (if options.columns is set)
+  if (Array.isArray(options.columns)) {
+    table = table.map((row) => options.columns.map((i: unknown) => row[+(i as string) - 1]))
+  }
+
+  // join cells and rows
+  return table.map((row) => ` ${row.join(chalk.blueBright(' ｜ '))} `).map(colorizeLineBg).join('\n')
+
+  /// //////////////////////////////// internal sub-functions ///////////////////////////////////
 
   function convertValues (value: unknown, column: string): string {
     if (typeof value === 'number') {
@@ -67,9 +101,9 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
         return chalkOrValue(new Date(value * 1000).toISOString(), options.unixtime)
       }
       const l = getDecimalPlaces(value)
-      const maxl = decimalPlaces.get(column)
+      const maxl = decimalPlaces[column]
       let s = value.toString()
-      if (maxl !== undefined && maxl > 0) {
+      if (!isNaN(maxl) && maxl > 0) {
         s = s + ' '.repeat(maxl - l)
         if (l === 0) { s = s + ' ' }
       }
@@ -99,28 +133,14 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
     return '' // null or undefined or function
   }
 
-  function chalkOrValue (value: string|boolean|number, color: string): string {
-    if (color !== undefined && color.length > 0) {
-      return chalk.hex(color)(value)
-    }
-    return value.toString()
-  }
-
-  function chalkBgOrValue (value: string | boolean | number, color: string): string {
-    if (color !== undefined && color.length > 0) {
-      return chalk.bgHex(color)(value)
-    }
-    return value.toString()
-  }
-
-  function pad (data: string, column: string): string {
-    const l = decimalPlaces.get(column)
-    const w = columnWidths.get(column)
+  function pad (value: string, column: string): string {
+    const l = decimalPlaces[column]
+    const w = columnWidths[column]
     if (w !== undefined) {
-      if (l !== undefined) { // this is a number column, so we do a right pad
-        return (' '.repeat(w - stringWidth(data))) + data
+      if (!isNaN(l)) { // this is a number column, so we do a right pad
+        return (' '.repeat(w - stringWidth(value))) + value
       } else {
-        return data + (' '.repeat(w - stringWidth(data)))
+        return value + (' '.repeat(w - stringWidth(value)))
       }
     }
     return 'PADERROR'
@@ -136,66 +156,38 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
     }
     return chalkBgOrValue(line, options.odd)
   }
+}
 
-  // if the input is a string, convert it to data
-  if (typeof (data) === 'string') {
-    data = dataToTable(data)
+/// //////////////////////////////////////////////////////////////////// helpers ///////////////////////////////////////////////////////////////////////////////
+
+export function mapObject<V, R> (obj: Record<string, V>, fun: (column: string, value: V) => R): Record<string, R> {
+  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, fun(k, v)]))
+}
+
+export function mapObjects<V, R> (objs: Array<Record<string, V>>, fun: (column: string, value: V) => R): Array<Record<string, R>> {
+  return objs.map(obj => mapObject(obj, fun))
+}
+
+function max (a: number, b: number): number {
+  return a > b ? a : b
+}
+
+export function reduceObjects<V> (objects: Array<Record<string, V>>, fun: (value: V, oldValue: V, column: string) => V): Record<string, V> {
+  const old = objects[0]
+  objects.slice(1).forEach(obj => Object.keys(old).forEach(key => { old[key] = fun(obj[key], old[key], key) }))
+  return old
+}
+
+function chalkOrValue (value: string|boolean|number, color: string): string {
+  if (color !== undefined && color.length > 0) {
+    return chalk.hex(color)(value)
   }
+  return value.toString()
+}
 
-  // extract column names (aka table header) and decimal places
-  for (const d of data) {
-    for (const column of Object.keys(d)) {
-      columns.set(column, column)
-      const v = d[column]
-      if (typeof (v) === 'number') {
-        let l = getDecimalPlaces(v)
-        const old = decimalPlaces.get(column)
-        if (old !== undefined) {
-          l = old > l ? old : l
-        }
-        decimalPlaces.set(column, l)
-      }
-    }
+function chalkBgOrValue (value: string | boolean | number, color: string): string {
+  if (color !== undefined && color.length > 0) {
+    return chalk.bgHex(color)(value)
   }
-
-  // add table header
-  data.unshift(Object.fromEntries(columns))
-
-  // convert all values to strings
-  const dataWithValuesConvertedToStrings = data.map(row => Object.fromEntries(Object.entries(row).map(
-    ([column, value]) => [column, convertValues(value, column).replace(/[\t\r\n]/g, '☐')]
-  )))
-
-  // calculate column widths
-  for (const row of dataWithValuesConvertedToStrings) {
-    for (const [column, value] of Object.entries(row)) {
-      const w = stringWidth(value)
-      const o = columnWidths.get(column)
-      if (o !== undefined) {
-        if (o < w) {
-          columnWidths.set(column, w)
-        }
-      } else {
-        columnWidths.set(column, w)
-      }
-    }
-  }
-
-  // pad all cells of one column to the same length
-  for (const row of dataWithValuesConvertedToStrings) {
-    for (const [column, value] of Object.entries(row)) {
-      row[column] = pad(value, column)
-    }
-  }
-
-  // convert array of objects to array of array (like excel ;)
-  let table = dataWithValuesConvertedToStrings.map((e) => Array.from(columns.values()).map(column => e[column]))
-
-  // filter columns
-  if (Array.isArray(options.columns)) {
-    table = table.map((row) => options.columns.map((i: unknown) => row[+(i as string) - 1]))
-  }
-
-  // join cells and rows
-  return table.map((row) => ` ${row.join(chalk.blueBright(' ｜ '))} `).map(colorizeLineBg).join('\n')
+  return value.toString()
 }

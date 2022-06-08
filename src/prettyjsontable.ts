@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { OptionValues } from 'commander'
 import stringWidth from 'string-width'
-
+import * as asciichart from 'asciichart'
 type Data = Array<Record<string, unknown>>
 
 // this function returns an array of parsed JSON objects, the function does not care about formating. i.e. `[1,2\n][3,4]\n { "a"\r\n:2}\r\r` is valid input
@@ -51,6 +51,43 @@ function getDecimalPlaces (v: number): number {
   return 0
 }
 
+function transpose (m: unknown[][]): unknown[][] {
+  return m[0].map((x: any, i: string | number) => m.map((x: { [x: string]: any }) => x[i]))
+}
+export function prettyjsongraph (data: Data | string, options: OptionValues): string {
+  const columns: Map<string, string> = new Map()
+
+  // if the input is a string, convert it to data
+  if (typeof (data) === 'string') {
+    data = dataToTable(data)
+  }
+
+  // extract column names (aka table header) and decimal places
+  data.forEach(d => Object.keys(d).forEach(column => { columns.set(column, column) }))
+
+  // add table header
+  data.unshift(Object.fromEntries(columns))
+
+  // convert array of objects to array of array (like excel ;)
+  let table = data.map((e) => Array.from(columns.values()).map(column => e[column]))
+
+  // filter and rearrange columns (if options.columns is set)
+  if (Array.isArray(options.columns)) {
+    table = table.map((row) => options.columns.map((i: unknown) => row[+(i as string) - 1]))
+  }
+  const header = table.shift() as string[]
+  table = transpose(table)
+  const colors = [asciichart.blue, asciichart.green, asciichart.red, asciichart.magenta, asciichart.cyan, asciichart.lightblue, asciichart.lightcyan, asciichart.yellow]
+  if (header.length > colors.length) {
+    return 'too many columns for graph'
+  }
+  //  const minval: number = (table as number[][]).map(a => a.reduce(min)).reduce(min)
+  //  const maxval: number = (table as number[][]).map(a => a.reduce(min)).reduce(min)
+
+  //  const terminalwidth = process.stdout.columns !== undefined ? process.stdout.columns : 42
+  return [asciichart.plot(table as number[][], { height: 20, colors }), header.map((v, i) => asciichart.colored(v, colors[i])).join('  ')].join('\n')
+}
+
 export function prettyjsontable (data: Data| string, options: OptionValues): string {
   const columns: Map<string, string> = new Map()
   const firstJSONDate = new Date(options.unixstart).valueOf()
@@ -73,7 +110,7 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
   // fill dummy object
   const dummy = mapObject(Object.fromEntries(columns), () => '')
 
-  // extend all objects with empty string placeholder
+  // extend all objects with empty string
   const dataWithExtendedObjects = data.map(o => ({ ...dummy, ...o }))
 
   // convert all values to strings
@@ -99,7 +136,6 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
   /// //////////////////////////////// internal sub-functions ///////////////////////////////////
 
   function convertValues (value: unknown, column: string): string {
-    console.log(column, value, typeof (value))
     if (typeof value === 'number') {
       if (value > firstJSONDate && value < lastJSONDate && options.msunixtime.length > 0) {
         return chalkOrValue(new Date(value).toISOString(), options.msunixtime)
@@ -175,8 +211,11 @@ export function mapObjects<V, R> (objs: Array<Record<string, V>>, fun: (column: 
   return objs.map(obj => mapObject(obj, fun))
 }
 
-function max (a: number, b: number): number {
+export function max (a: number, b: number): number {
   return a > b ? a : b
+}
+export function min (a: number, b: number): number {
+  return a < b ? a : b
 }
 
 export function reduceObjects<V> (objects: Array<Record<string, V>>, fun: (value: V, oldValue: V, column: string) => V): Record<string, V> {

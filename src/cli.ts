@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { readFileSync } from 'node:fs'
-import { prettyjsontable } from './prettyjsontable.js'
+import { prettyjsongraph, prettyjsontable } from './prettyjsontable.js'
 import { Command, Option } from 'commander'
 
 const program = new Command()
@@ -23,6 +23,7 @@ program
   .addOption(new Option('--unixstart <date>', 'convert numbers after <date> to Date').default('2013-01-01').env('PRETTYJSONTABLE_UNIXSTART'))
   .addOption(new Option('--unixend <date>', 'convert numbers before <date> to Date').default('2030-01-01').env('PRETTYJSONTABLE_UNIXEND'))
   .addOption(new Option('-c, --columns <number...>', 'display columns in the given order (i.e. 3 4 1)'))
+  .addOption(new Option('-g, --graph', 'plot graph for numeric values').default(false).env('PRETTYJSONTABLE_GRAPH'))
   .addHelpText('after', `
 
   ENVIRONMENT:
@@ -42,5 +43,8 @@ program.parse()
 const options = program.opts()
 
 const data = readFileSync('/dev/stdin', 'utf-8')
-
-console.log(prettyjsontable(data, options))
+if (options.graph !== false) {
+  console.log(prettyjsongraph(data, options))
+} else {
+  console.log(prettyjsontable(data, options))
+}

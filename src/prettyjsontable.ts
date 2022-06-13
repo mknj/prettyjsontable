@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { OptionValues } from 'commander'
 import stringWidth from 'string-width'
-import * as asciichart from 'asciichart'
+import { Matrix } from './matrix.js'
 type Data = Array<Record<string, unknown>>
 
 // this function returns an array of parsed JSON objects, the function does not care about formating. i.e. `[1,2\n][3,4]\n { "a"\r\n:2}\r\r` is valid input
@@ -52,7 +52,7 @@ function getDecimalPlaces (v: number): number {
 }
 
 function transpose (m: unknown[][]): unknown[][] {
-  return m[0].map((x: any, i: string | number) => m.map((x: { [x: string]: any }) => x[i]))
+  return m[0].map((x: unknown, i: number) => m.map((x: unknown[]) => x[i]))
 }
 export function prettyjsongraph (data: Data | string, options: OptionValues): string {
   const columns: Map<string, string> = new Map()
@@ -76,16 +76,9 @@ export function prettyjsongraph (data: Data | string, options: OptionValues): st
     table = table.map((row) => options.columns.map((i: unknown) => row[+(i as string) - 1]))
   }
   const header = table.shift() as string[]
-  table = transpose(table)
-  const colors = [asciichart.blue, asciichart.green, asciichart.red, asciichart.magenta, asciichart.cyan, asciichart.lightblue, asciichart.lightcyan, asciichart.yellow]
-  if (header.length > colors.length) {
-    return 'too many columns for graph'
-  }
-  //  const minval: number = (table as number[][]).map(a => a.reduce(min)).reduce(min)
-  //  const maxval: number = (table as number[][]).map(a => a.reduce(min)).reduce(min)
-
-  //  const terminalwidth = process.stdout.columns !== undefined ? process.stdout.columns : 42
-  return [asciichart.plot(table as number[][], { height: 20, colors }), header.map((v, i) => asciichart.colored(v, colors[i])).join('  ')].join('\n')
+  table = transpose(table) as number[][]
+  return Matrix.drawGraph(table as number[][], header)
+//  return [asciichart.plot(table as number[][], { height: 20, colors }), header.map((v, i) => asciichart.colored(v, colors[i])).join('  ')].join('\n')
 }
 
 export function prettyjsontable (data: Data| string, options: OptionValues): string {

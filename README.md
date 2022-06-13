@@ -12,6 +12,7 @@ The package provides the `prettyjsontable` command and a `jt` shortcut.
 * align numbers
 * changeable defaults via environment variables
 * works fine with [jq](https://stedolan.github.io/jq/) pipes
+* draw simple graphs for numbers
 
 # install
 
@@ -41,12 +42,13 @@ Options:
   -v, --msunixtime <color>   highlight and convert unix timestamps in ms
   --unixstart <date>         convert numbers after <date> to Date
   --unixend <date>           convert numbers before <date> to Date
-  -c, --columns <number...>  display columns in the given order
+  -c, --columns <number...>  display columns in the given order (i.e. 3 4 1)
+  -g, --graph                plot graph for numeric values
   -h, --help                 display help for command
 
 
   ENVIRONMENT:
-    You can also set an option via the variable PRETTYJSONTABLE_optionname
+    You can also set an option via the variable PRETTYJSONTABLE_optionname.
     i.e. PRETTYJSONTABLE_EVEN for the even option.
   
   Disable single color:
@@ -56,5 +58,4 @@ Options:
   Example calls:
     $ cat test.json | prettyjsontable -n 3 2 1 -u "" -n "#AAAA22"
     $ cat test.json | jq .[] | jt
-
 ```

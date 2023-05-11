@@ -1,6 +1,6 @@
 # TLDR
 
-Read a json array or jsonstream from stdin and print as table.
+Read a json array or jsonstream from stdin and print as pretty table.
 
 The package provides the `prettyjsontable` command and a `jt` shortcut.
 

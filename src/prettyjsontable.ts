@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { OptionValues } from 'commander'
+import { type OptionValues } from 'commander'
 import stringWidth from 'string-width'
 import { Matrix } from './matrix.js'
 type Data = Array<Record<string, unknown>>
@@ -55,7 +55,7 @@ function transpose (m: unknown[][]): unknown[][] {
   return m[0].map((x: unknown, i: number) => m.map((x: unknown[]) => x[i]))
 }
 export function prettyjsongraph (data: Data | string, options: OptionValues): string {
-  const columns: Map<string, string> = new Map()
+  const columns = new Map<string, string>()
 
   // if the input is a string, convert it to data
   if (typeof (data) === 'string') {
@@ -63,7 +63,7 @@ export function prettyjsongraph (data: Data | string, options: OptionValues): st
   }
 
   // extract column names (aka table header) and decimal places
-  data.forEach(d => Object.keys(d).forEach(column => { columns.set(column, column) }))
+  data.forEach(d => { Object.keys(d).forEach(column => { columns.set(column, column) }) })
 
   // add table header
   data.unshift(Object.fromEntries(columns))
@@ -81,8 +81,8 @@ export function prettyjsongraph (data: Data | string, options: OptionValues): st
 //  return [asciichart.plot(table as number[][], { height: 20, colors }), header.map((v, i) => asciichart.colored(v, colors[i])).join('  ')].join('\n')
 }
 
-export function prettyjsontable (data: Data| string, options: OptionValues): string {
-  const columns: Map<string, string> = new Map()
+export function prettyjsontable (data: Data | string, options: OptionValues): string {
+  const columns = new Map<string, string>()
   const firstJSONDate = new Date(options.unixstart).valueOf()
   const lastJSONDate = new Date(options.unixend).valueOf()
 
@@ -92,7 +92,7 @@ export function prettyjsontable (data: Data| string, options: OptionValues): str
   }
 
   // extract column names (aka table header) and decimal places
-  data.forEach(d => Object.keys(d).forEach(column => { columns.set(column, column) }))
+  data.forEach(d => { Object.keys(d).forEach(column => { columns.set(column, column) }) })
 
   // calculate column widths
   const decimalPlaces = reduceObjects(mapObjects(data, (column, value) => typeof (value) === 'number' ? getDecimalPlaces(value) : NaN), max)
@@ -213,11 +213,11 @@ export function min (a: number, b: number): number {
 
 export function reduceObjects<V> (objects: Array<Record<string, V>>, fun: (value: V, oldValue: V, column: string) => V): Record<string, V> {
   const old = objects[0]
-  objects.slice(1).forEach(obj => Object.keys(old).forEach(key => { old[key] = fun(obj[key], old[key], key) }))
+  objects.slice(1).forEach(obj => { Object.keys(old).forEach(key => { old[key] = fun(obj[key], old[key], key) }) })
   return old
 }
 
-function chalkOrValue (value: string|boolean|number, color: string): string {
+function chalkOrValue (value: string | boolean | number, color: string): string {
   if (color !== undefined && color.length > 0) {
     return chalk.hex(color)(value)
   }
